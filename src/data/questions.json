@@ -1,0 +1,38 @@
+[
+  {
+    "question_id": "G_01_DAWN",
+    "arc": "Genesis",
+    "arc_index": 1,
+    "text": "Before the first heartbeat of time, what was the nature of the universe?",
+    "responses": [
+      { "id": "A", "text": "A perfect, silent blueprint waiting to be enacted.", "weights": { "origin_order": 10, "affinity_stellar": 2 } },
+      { "id": "B", "text": "A screaming, fertile chaos of pure potential.", "weights": { "origin_wild": 10, "affinity_volcanic": 3 } },
+      { "id": "C", "text": "A single, conscious thought in the mind of the Divine.", "weights": { "origin_spark": 10, "affinity_stellar": 2 } },
+      { "id": "D", "text": "An echoing, hollow silence that owed nothing to no one.", "weights": { "origin_void": 10, "affinity_lunar": 3 } }
+    ]
+  },
+  {
+    "question_id": "Q4_MASK",
+    "arc": "Persona",
+    "arc_index": 4,
+    "text": "You stand in a crowded marketplace. What is your unspoken role?",
+    "responses": [
+      { "id": "A", "text": "The silent guardian watching the perimeter for threats.", "weights": { "archetype_sentinel": 10 } },
+      { "id": "B", "text": "The radiant presence that draws others into your orbit.", "weights": { "affinity_solar": 8 } },
+      { "id": "C", "text": "The shadow on the wall, seeing all but remaining unseen.", "weights": { "affinity_lunar": 8 } },
+      { "id": "D", "text": "The one whispered about for questioning the status quo.", "weights": { "archetype_iconoclast": 10 } }
+    ]
+  },
+  {
+    "question_id": "Q14_LEGACY",
+    "arc": "Teleos",
+    "arc_index": 14,
+    "text": "When the tapestry of your life is finally finished, what should the central image be?",
+    "responses": [
+      { "id": "A", "text": "A throne or a city that stands long after I am gone.", "weights": { "teleos_legacy": 10 } },
+      { "id": "B", "text": "A mirror reflecting a perfectly clear and peaceful sky.", "weights": { "teleos_equilibrium": 10 } },
+      { "id": "C", "text": "A figure stepping through a door into a blinding, new light.", "weights": { "teleos_apotheosis": 10 } },
+      { "id": "D", "text": "A drop of water falling into a vast, shimmering ocean.", "weights": { "teleos_communion": 10 } }
+    ]
+  }
+]

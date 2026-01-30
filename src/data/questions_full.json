@@ -1,0 +1,243 @@
+[
+  {
+    "question_id": "G_01_DAWN",
+    "arc": "Genesis",
+    "arc_index": 1,
+    "text": "Before the first heartbeat of time, what was the nature of the universe?",
+    "responses": [
+      { "id": "A", "text": "A perfect, silent blueprint waiting to be enacted.", "weights": { "origin_order": 10, "affinity_stellar": 2 } },
+      { "id": "B", "text": "A screaming, fertile chaos of pure potential.", "weights": { "origin_wild": 10, "affinity_volcanic": 3 } },
+      { "id": "C", "text": "A single, conscious thought in the mind of the Divine.", "weights": { "origin_spark": 10, "affinity_stellar": 2 } },
+      { "id": "D", "text": "An echoing, hollow silence that owed nothing to no one.", "weights": { "origin_void": 10, "affinity_lunar": 3 } }
+    ]
+  },
+  {
+    "question_id": "G_02_CHILD",
+    "arc": "Genesis",
+    "arc_index": 2,
+    "text": "In your earliest memories, which mystery felt most like 'home' to you?",
+    "responses": [
+      { "id": "A", "text": "The safety of the hearth and the stories of those who came before.", "weights": { "origin_ancestry": 10 } },
+      { "id": "B", "text": "The hidden path in the woods that no one else dared to take.", "weights": { "archetype_wayfarer": 8 } },
+      { "id": "C", "text": "The feeling that you could build a world of your own out of dust.", "weights": { "archetype_weaver": 8 } },
+      { "id": "D", "text": "The silver light of the moon on a quiet, empty street.", "weights": { "affinity_lunar": 6 } }
+    ]
+  },
+  {
+    "question_id": "G_03_TRUTH",
+    "arc": "Genesis",
+    "arc_index": 3,
+    "text": "When you seek the ultimate truth of a matter, where do you look?",
+    "responses": [
+      { "id": "A", "text": "Toward the ancient laws and the wisdom of the ages.", "weights": { "origin_ancestry": 8 } },
+      { "id": "B", "text": "Toward the cold, mathematical precision of the stars.", "weights": { "affinity_stellar": 8 } },
+      { "id": "C", "text": "Toward the heat of your own blood and the pull of instinct.", "weights": { "affinity_volcanic": 8 } },
+      { "id": "D", "text": "Toward the wreckage of old ideas that must be cleared away.", "weights": { "archetype_iconoclast": 8 } }
+    ]
+  },
+  {
+    "question_id": "Q04_MASK",
+    "arc": "Persona",
+    "arc_index": 4,
+    "text": "You stand in a crowded marketplace. What is your unspoken role?",
+    "responses": [
+      { "id": "A", "text": "The silent guardian watching the perimeter for threats.", "weights": { "archetype_sentinel": 10 } },
+      { "id": "B", "text": "The radiant presence that draws others into your orbit.", "weights": { "affinity_solar": 8 } },
+      { "id": "C", "text": "The shadow on the wall, seeing all but remaining unseen.", "weights": { "affinity_lunar": 8 } },
+      { "id": "D", "text": "The one whispered about for questioning the status quo.", "weights": { "archetype_iconoclast": 10 } }
+    ]
+  },
+  {
+    "question_id": "Q05_ENGINE",
+    "arc": "Persona",
+    "arc_index": 5,
+    "text": "What is the primary force that moves you through a difficult day?",
+    "responses": [
+      { "id": "A", "text": "The weight of my responsibilities and the crown I choose to wear.", "weights": { "archetype_sovereign": 10 } },
+      { "id": "B", "text": "The knowledge that I can transmute this pain into wisdom.", "weights": { "archetype_alchemist": 10 } },
+      { "id": "C", "text": "The connections I hold and the people who rely on my light.", "weights": { "archetype_weaver": 10 } },
+      { "id": "D", "text": "The hunger for the next horizon and the fear of standing still.", "weights": { "archetype_wayfarer": 10 } }
+    ]
+  },
+  {
+    "question_id": "Q06_POWER",
+    "arc": "Persona",
+    "arc_index": 6,
+    "text": "To you, true power is best described as...",
+    "responses": [
+      { "id": "A", "text": "The ability to protect what is fragile.", "weights": { "archetype_sentinel": 8 } },
+      { "id": "B", "text": "The freedom to walk away from anything.", "weights": { "archetype_wayfarer": 8 } },
+      { "id": "C", "text": "The authority to bring order to chaos.", "weights": { "archetype_sovereign": 8 } },
+      { "id": "D", "text": "The insight to see through the illusions of others.", "weights": { "archetype_alchemist": 8 } }
+    ]
+  },
+  {
+    "question_id": "Q07_FEAR",
+    "arc": "Descent",
+    "arc_index": 7,
+    "text": "If you were to be stripped of all your titles, what is the 'Ghost' that remains?",
+    "responses": [
+      { "id": "A", "text": "A cold, demanding judge who says I am never enough.", "weights": { "shadow_tyrant": 10 } },
+      { "id": "B", "text": "A hollow vessel that fears it will never be filled.", "weights": { "shadow_parasite": 10 } },
+      { "id": "C", "text": "A silent void where a personality used to be.", "weights": { "shadow_abyss": 10 } },
+      { "id": "D", "text": "A snarling creature that wants to burn it all down.", "weights": { "shadow_beast": 10 } }
+    ]
+  },
+  {
+    "question_id": "Q08_MASK",
+    "arc": "Descent",
+    "arc_index": 8,
+    "text": "You are given a mask that grants you total impunity. What is your first act?",
+    "responses": [
+      { "id": "A", "text": "I observe the secrets of my enemies to gain leverage.", "weights": { "shadow_tyrant": 8 } },
+      { "id": "B", "text": "I take what I have been denied and satisfy my hungers.", "weights": { "shadow_beast": 8 } },
+      { "id": "C", "text": "I simply walk away from my life and never return.", "weights": { "shadow_abyss": 8 } },
+      { "id": "D", "text": "I watch my loved ones to see if they truly care for me.", "weights": { "shadow_parasite": 8 } }
+    ]
+  },
+  {
+    "question_id": "Q09_BETRAY",
+    "arc": "Descent",
+    "arc_index": 9,
+    "text": "When someone you trust breaks their word, your immediate internal shift is...",
+    "responses": [
+      { "id": "A", "text": "To tighten my grip and ensure they can never hurt me again.", "weights": { "shadow_tyrant": 8 } },
+      { "id": "B", "text": "To feel a deep, cold emptiness, as if nothing ever mattered.", "weights": { "shadow_abyss": 8 } },
+      { "id": "C", "text": "To wonder what I did wrong to deserve such abandonment.", "weights": { "shadow_parasite": 8 } },
+      { "id": "D", "text": "To strike back with a fury that leaves nothing but ash.", "weights": { "shadow_beast": 8 } }
+    ]
+  },
+  {
+    "question_id": "Q10_PROGRESS",
+    "arc": "Crucible",
+    "arc_index": 10,
+    "text": "A great innovation requires the destruction of a sacred tradition. You choose...",
+    "responses": [
+      { "id": "A", "text": "To protect the tradition; we are nothing without our roots.", "weights": { "origin_ancestry": 8 } },
+      { "id": "B", "text": "To embrace the innovation; the past is a corpse.", "weights": { "archetype_iconoclast": 8 } },
+      { "id": "C", "text": "To find a way to weave the old into the new.", "weights": { "archetype_alchemist": 8 } },
+      { "id": "D", "text": "To let the conflict play out; the strongest will survive.", "weights": { "origin_wild": 6 } }
+    ]
+  },
+  {
+    "question_id": "Q11_SUFFER",
+    "arc": "Crucible",
+    "arc_index": 11,
+    "text": "Is suffering a tool for growth or a cosmic mistake?",
+    "responses": [
+      { "id": "A", "text": "It is the fire that tempers the soul.", "weights": { "archetype_alchemist": 6, "affinity_stellar": 4 } },
+      { "id": "B", "text": "It is a sign that the system is broken and must be rebelled against.", "weights": { "affinity_volcanic": 6, "archetype_iconoclast": 4 } },
+      { "id": "C", "text": "It is a burden to be shared and softened through empathy.", "weights": { "affinity_solar": 6, "archetype_weaver": 4 } },
+      { "id": "D", "text": "It is an inevitable part of the machine; one must endure it.", "weights": { "origin_order": 6, "archetype_sentinel": 4 } }
+    ]
+  },
+  {
+    "question_id": "Q12_VOTIVE",
+    "arc": "Anima",
+    "arc_index": 12,
+    "text": "You are asked to place one object on an altar. You choose...",
+    "responses": [
+      { "id": "A", "text": "A heavy iron key.", "weights": { "origin_order": 6, "archetype_sovereign": 4 } },
+      { "id": "B", "text": "A wild, unbloomed flower.", "weights": { "origin_wild": 6, "archetype_wayfarer": 4 } },
+      { "id": "C", "text": "A vial of clear, still water.", "weights": { "origin_spark": 6, "teleos_equilibrium": 4 } },
+      { "id": "D", "text": "A shard of a broken mirror.", "weights": { "origin_void": 6, "archetype_iconoclast": 4 } }
+    ]
+  },
+  {
+    "question_id": "Q13_SPACE",
+    "arc": "Anima",
+    "arc_index": 13,
+    "text": "When you seek a moment of profound connection, you find it in...",
+    "responses": [
+      { "id": "A", "text": "A cathedral of stone and ancient echoes.", "weights": { "origin_ancestry": 6 } },
+      { "id": "B", "text": "The center of a storm where the wind howls.", "weights": { "affinity_volcanic": 6 } },
+      { "id": "C", "text": "The quiet of a library at midnight.", "weights": { "affinity_lunar": 6 } },
+      { "id": "D", "text": "A vibrant garden where everything is in bloom.", "weights": { "affinity_solar": 6 } }
+    ]
+  },
+  {
+    "question_id": "Q14_LEGACY",
+    "arc": "Teleos",
+    "arc_index": 14,
+    "text": "When the tapestry of your life is finally finished, what should the central image be?",
+    "responses": [
+      { "id": "A", "text": "A throne or a city that stands long after I am gone.", "weights": { "teleos_legacy": 10 } },
+      { "id": "B", "text": "A mirror reflecting a perfectly clear and peaceful sky.", "weights": { "teleos_equilibrium": 10 } },
+      { "id": "C", "text": "A figure stepping through a door into a blinding, new light.", "weights": { "teleos_apotheosis": 10 } },
+      { "id": "D", "text": "A drop of water falling into a vast, shimmering ocean.", "weights": { "teleos_communion": 10 } }
+    ]
+  },
+  {
+    "question_id": "Q15_DEATH",
+    "arc": "Teleos",
+    "arc_index": 15,
+    "text": "As you stand at the edge of the great transition, you view it as...",
+    "responses": [
+      { "id": "A", "text": "A final rest after a long day's work.", "weights": { "teleos_equilibrium": 8 } },
+      { "id": "B", "text": "The ultimate adventure into the unknown.", "weights": { "teleos_apotheosis": 8 } },
+      { "id": "C", "text": "The dissolution of the self into the collective whole.", "weights": { "teleos_communion": 8 } },
+      { "id": "D", "text": "A theft of the life I have built.", "weights": { "teleos_legacy": 8 } }
+    ]
+  },
+  {
+    "question_id": "Q16_ARRIVED",
+    "arc": "Teleos",
+    "arc_index": 16,
+    "text": "You will know you have 'arrived' when...",
+    "responses": [
+      { "id": "A", "text": "You are no longer afraid of anything.", "weights": { "teleos_apotheosis": 8 } },
+      { "id": "B", "text": "You have brought peace to those around you.", "weights": { "teleos_communion": 8 } },
+      { "id": "C", "text": "You have mastered your craft and your mind.", "weights": { "teleos_equilibrium": 8 } },
+      { "id": "D", "text": "Your name is spoken with reverence by the next generation.", "weights": { "teleos_legacy": 8 } }
+    ]
+  },
+  {
+    "question_id": "Q17_FATE",
+    "arc": "Final Calibration",
+    "arc_index": 17,
+    "text": "If you could rewrite one moment of your past, would you?",
+    "responses": [
+      { "id": "A", "text": "Yes, to erase the pain I caused or felt.", "weights": { "shadow_parasite": 6, "shadow_abyss": 4 } },
+      { "id": "B", "text": "No, for every scar is a part of my map.", "weights": { "archetype_alchemist": 6, "archetype_sovereign": 4 } },
+      { "id": "C", "text": "I would rewrite it all to see what else I could be.", "weights": { "archetype_wayfarer": 8 } },
+      { "id": "D", "text": "I would only rewrite the endings.", "weights": { "archetype_sentinel": 6 } }
+    ]
+  },
+  {
+    "question_id": "Q18_LIGHT",
+    "arc": "Final Calibration",
+    "arc_index": 18,
+    "text": "When the path ahead is dark, what is your lantern?",
+    "responses": [
+      { "id": "A", "text": "Logic and the cold facts of the world.", "weights": { "affinity_stellar": 8 } },
+      { "id": "B", "text": "The warmth of my own conviction.", "weights": { "affinity_solar": 8 } },
+      { "id": "C", "text": "The whispers of my ancestors and my intuition.", "weights": { "affinity_lunar": 8 } },
+      { "id": "D", "text": "The sheer necessity of survival.", "weights": { "affinity_volcanic": 8 } }
+    ]
+  },
+  {
+    "question_id": "Q19_FREE",
+    "arc": "Final Calibration",
+    "arc_index": 19,
+    "text": "Freedom is...",
+    "responses": [
+      { "id": "A", "text": "The ability to do what is right.", "weights": { "axis_order": 6 } },
+      { "id": "B", "text": "The ability to do what I want.", "weights": { "origin_wild": 6 } },
+      { "id": "C", "text": "The absence of desire.", "weights": { "origin_spark": 6 } },
+      { "id": "D", "text": "The recognition of necessity.", "weights": { "origin_void": 6 } }
+    ]
+  },
+  {
+    "question_id": "Q20_LAST",
+    "arc": "Final Calibration",
+    "arc_index": 20,
+    "text": "The light goes out. What is your final thought?",
+    "responses": [
+      { "id": "A", "text": "It is finished.", "weights": { "teleos_legacy": 6, "teleos_equilibrium": 4 } },
+      { "id": "B", "text": "What's next?",
+    "weights": { "teleos_apotheosis": 6, "archetype_wayfarer": 4 } },
+      { "id": "C", "text": "I am here.", "weights": { "teleos_communion": 6 } },
+      { "id": "D", "text": "Finally, silence.", "weights": { "origin_void": 6, "teleos_equilibrium": 4 } }
+    ]
+  }
+]
