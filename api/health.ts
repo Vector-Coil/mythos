@@ -4,13 +4,14 @@ async function handler(req:any, res:any){
   try{
     if(!DATABASE_URL) return res.status(500).json({ ok: false, reason: 'DATABASE_URL not set' })
 
-    let mysql
+    let mysqlLib
     try{
-      mysql = require('mysql2/promise')
+      mysqlLib = require('mysql2/promise')
     }catch(e:any){
       console.error('mysql2 require failed', e && e.stack ? e.stack : e)
       return res.status(500).json({ ok: false, error: 'mysql2 module not found', detail: String(e) })
     }
+    const mysql = (mysqlLib && typeof mysqlLib.createPool === 'function') ? mysqlLib : (mysqlLib && mysqlLib.default && typeof mysqlLib.default.createPool === 'function' ? mysqlLib.default : mysqlLib)
 
     const useSsl = /[?&]ssl=(true|1)/i.test(DATABASE_URL)
     const cfg: any = { uri: DATABASE_URL, waitForConnections: true, connectionLimit: 2 }

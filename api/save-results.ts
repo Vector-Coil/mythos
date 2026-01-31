@@ -7,12 +7,8 @@ function getPool(){
   // @ts-ignore
   if((global as any).__mysqlPool) { pool = (global as any).__mysqlPool; return pool }
 
-  let mysql
-  try{
-    mysql = require('mysql2/promise')
-  }catch(e:any){
-    throw new Error('mysql2 module not available: ' + String(e))
-  }
+  const mysqlLib = require('mysql2/promise')
+  const mysql = (mysqlLib && typeof mysqlLib.createPool === 'function') ? mysqlLib : (mysqlLib && mysqlLib.default && typeof mysqlLib.default.createPool === 'function' ? mysqlLib.default : mysqlLib)
 
   const useSsl = DATABASE_URL && /[?&]ssl=(true|1)/i.test(DATABASE_URL)
   const cfg: any = { uri: DATABASE_URL, waitForConnections: true, connectionLimit: 10 }
