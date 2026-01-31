@@ -4,28 +4,26 @@
 const STORAGE_KEY = 'mythos_users_v1'
 const SESSION_KEY = 'mythos_session_v1'
 
-type User = { id:string; email:string; password:string }
+type User = { id:string; email:string; password?:string }
 
-function loadUsers(): User[] {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') } catch { return [] }
+async function apiPost(path:string, body:any){
+  const res = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  const j = await res.json().catch(()=>null)
+  return { ok: res.ok, status: res.status, body: j }
 }
 
-function saveUsers(users: User[]){ localStorage.setItem(STORAGE_KEY, JSON.stringify(users)) }
-
-export function signup(email:string, password:string){
-  const users = loadUsers()
-  if(users.find(u=>u.email===email)) throw new Error('User exists')
-  const user = { id: 'user_'+Date.now(), email, password }
-  users.push(user)
-  saveUsers(users)
+export async function signup(email:string, password:string){
+  const r = await apiPost('/api/user', { action: 'register', email, password })
+  if(!r.ok) throw new Error(r.body && r.body.error ? r.body.error : `status:${r.status}`)
+  const user = r.body.user
   localStorage.setItem(SESSION_KEY, JSON.stringify({ id: user.id, email: user.email, token: 'local-'+user.id }))
   return { id: user.id, email: user.email }
 }
 
-export function signin(email:string, password:string){
-  const users = loadUsers()
-  const user = users.find(u=>u.email===email && u.password===password)
-  if(!user) throw new Error('Invalid credentials')
+export async function signin(email:string, password:string){
+  const r = await apiPost('/api/user', { action: 'login', email, password })
+  if(!r.ok) throw new Error(r.body && r.body.error ? r.body.error : `status:${r.status}`)
+  const user = r.body.user
   localStorage.setItem(SESSION_KEY, JSON.stringify({ id: user.id, email: user.email, token: 'local-'+user.id }))
   return { id: user.id, email: user.email }
 }
@@ -36,4 +34,9 @@ export function signout(){
 
 export function currentSession(){
   try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null') } catch { return null }
+}
+
+export async function resetProgressByUser(userId:string){
+  const r = await apiPost('/api/session/reset', { userId })
+  return r
 }

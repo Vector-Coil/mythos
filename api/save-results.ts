@@ -1,16 +1,26 @@
-import mysql from 'mysql2/promise'
-
 const DATABASE_URL = process.env.DATABASE_URL
 if(!DATABASE_URL) console.warn('No DATABASE_URL configured — save-results API will fail without a database')
 
-let pool: mysql.Pool | undefined
+let pool: any
 function getPool(){
   if(pool) return pool
   // @ts-ignore
   if((global as any).__mysqlPool) { pool = (global as any).__mysqlPool; return pool }
-  pool = mysql.createPool({ uri: DATABASE_URL, waitForConnections: true, connectionLimit: 10 })
+
+  let mysql
+  try{
+    mysql = require('mysql2/promise')
+  }catch(e:any){
+    throw new Error('mysql2 module not available: ' + String(e))
+  }
+
+  const useSsl = DATABASE_URL && /[?&]ssl=(true|1)/i.test(DATABASE_URL)
+  const cfg: any = { uri: DATABASE_URL, waitForConnections: true, connectionLimit: 10 }
+  if(useSsl) cfg.ssl = { rejectUnauthorized: false }
+
+  pool = mysql.createPool(cfg)
   // @ts-ignore
-  (global as any).__mysqlPool = pool
+  ;(global as any).__mysqlPool = pool
   return pool
 }
 
@@ -49,7 +59,7 @@ export default async function handler(req:any, res:any){
     await p.query('INSERT INTO mythos (id, user_id, created_at, seed, prim, scores, svg) VALUES (?, ?, ?, ?, ?, ?, ?)', [id, m.userId || null, now, m.seed || null, JSON.stringify(m.prim || {}), JSON.stringify(m.scores || {}), m.svg || null])
     return res.status(200).json({ ok: true, id })
   }catch(err:any){
-    console.error('save-results error', err)
-    return res.status(500).json({ error: String(err) })
+    console.error('save-results error', err && err.stack ? err.stack : err)
+    return res.status(500).json({ error: String(err), stack: err && err.stack ? err.stack : undefined })
   }
 }
