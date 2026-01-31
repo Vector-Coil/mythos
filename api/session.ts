@@ -32,7 +32,7 @@ export default async function handler(req:any, res:any){
     `)
 
     if(req.method === 'GET'){
-      const [rows] = await pool.query('SELECT id, user_id, created_at, updated_at, current_index, answers, completed_at, JSON_EXTRACT(CONCAT('{"session":', COALESCE(answers, 'null'), '}'), "$.*") AS session FROM sessions ORDER BY created_at DESC LIMIT 200')
+      const [rows] = await pool.query(`SELECT id, user_id, created_at, updated_at, current_index, answers, completed_at, JSON_EXTRACT(CONCAT('{"session":', COALESCE(answers, 'null'), '}'), "$.*") AS session FROM sessions ORDER BY created_at DESC LIMIT 200`)
       return res.status(200).json({ sessions: (rows as any[]) })
     }
 
