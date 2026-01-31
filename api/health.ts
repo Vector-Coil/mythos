@@ -23,6 +23,18 @@ async function handler(req:any, res:any){
     const cfg: any = { uri: DATABASE_URL, waitForConnections: true, connectionLimit: 2 }
     if(useSsl) cfg.ssl = { rejectUnauthorized: false }
 
+    // inspect runtime shape before creating pool (diagnostic)
+    try{
+      const createPoolType = typeof (mysql && (mysql as any).createPool)
+      if(createPoolType !== 'function'){
+        const keys = Object.keys(mysql || {}).slice(0,20)
+        const defaultKeys = mysql && mysql.default ? Object.keys(mysql.default).slice(0,20) : undefined
+        return res.status(500).json({ ok: false, error: 'mysql.createPool not a function', createPoolType, keys, defaultKeys })
+      }
+    }catch(e:any){
+      return res.status(500).json({ ok: false, error: 'inspect failed', detail: String(e) })
+    }
+
     // reuse pool across invocations when possible
     // @ts-ignore
     let pool = (global as any).__mysqlPool
