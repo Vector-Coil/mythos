@@ -46,6 +46,16 @@ export default async function handler(req:any, res:any){
     const bcrypt = require('bcryptjs')
     const jwt = require('jsonwebtoken')
 
+    // ensure auth_sessions table exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS auth_sessions (
+        jti VARCHAR(128) PRIMARY KEY,
+        user_id VARCHAR(64),
+        created_at DATETIME,
+        expires_at DATETIME
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `)
+
     if(action === 'register'){
       const [rows] = await pool.query('SELECT id FROM users WHERE email = ? LIMIT 1', [email])
       if(Array.isArray(rows) && (rows as any[]).length > 0){
@@ -55,7 +65,13 @@ export default async function handler(req:any, res:any){
       const now = new Date()
       const hashed = password ? await bcrypt.hash(password, 10) : null
       await pool.query('INSERT INTO users (id, email, password, name, created_at) VALUES (?, ?, ?, ?, ?)', [id, email, hashed, name, now])
-      const token = jwt.sign({ id, email }, SESSION_SECRET, { expiresIn: '7d' })
+
+      // create server-side session (jti)
+      const crypto = require('crypto')
+      const jti = crypto.randomUUID ? crypto.randomUUID() : `jti_${Date.now()}_${Math.random().toString(36).slice(2)}`
+      const expires = new Date(Date.now() + 7*24*60*60*1000)
+      await pool.query('INSERT INTO auth_sessions (jti, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)', [jti, id, now, expires])
+      const token = jwt.sign({ id, email, jti }, SESSION_SECRET, { expiresIn: '7d' })
       return res.status(200).json({ ok: true, user: { id, email, name }, token })
     }
 
@@ -65,7 +81,13 @@ export default async function handler(req:any, res:any){
       const u = (rows as any[])[0]
       const match = u.password ? await bcrypt.compare(password || '', u.password) : false
       if(!match) return res.status(401).json({ error: 'Invalid credentials' })
-      const token = jwt.sign({ id: u.id, email: u.email }, SESSION_SECRET, { expiresIn: '7d' })
+
+      const crypto = require('crypto')
+      const jti = crypto.randomUUID ? crypto.randomUUID() : `jti_${Date.now()}_${Math.random().toString(36).slice(2)}`
+      const now = new Date()
+      const expires = new Date(Date.now() + 7*24*60*60*1000)
+      await pool.query('INSERT INTO auth_sessions (jti, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)', [jti, u.id, now, expires])
+      const token = jwt.sign({ id: u.id, email: u.email, jti }, SESSION_SECRET, { expiresIn: '7d' })
       return res.status(200).json({ ok: true, user: { id: u.id, email: u.email, name: u.name }, token })
     }
 

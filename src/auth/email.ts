@@ -31,7 +31,16 @@ export async function signin(email:string, password:string){
 }
 
 export function signout(){
-  localStorage.removeItem(SESSION_KEY)
+  // call server logout to invalidate token, then clear local session
+  (async ()=>{
+    try{
+      const sess = currentSession()
+      if(sess && sess.token){
+        await fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${sess.token}` } })
+      }
+    }catch(e){ /* ignore */ }
+    localStorage.removeItem(SESSION_KEY)
+  })()
 }
 
 export function currentSession(){

@@ -23,7 +23,7 @@ export default function Auth({onAuth}:{onAuth:(user:any)=>void}){
     <div style={{marginBottom:12}}>
       <div>Signed in as <strong>{session.email || session.id}</strong></div>
       <div style={{display:'flex',gap:8,marginTop:8}}>
-        <button className="btn" onClick={()=>{ signout(); window.location.reload() }}>Sign out</button>
+        <button className="btn" onClick={async ()=>{ await signout(); window.location.reload() }}>Sign out</button>
         <button className="btn" onClick={async ()=>{
           if(!confirm('Wipe all active progress for this account? This cannot be undone.')) return
           const r = await resetProgressByUser(session.id)

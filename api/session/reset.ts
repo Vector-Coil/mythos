@@ -47,9 +47,14 @@ export default async function handler(req:any, res:any){
       if(!SESSION_SECRET) return res.status(500).json({ error: 'SESSION_SECRET not configured' })
       try{
         const payload = jwt.verify(token, SESSION_SECRET)
-        if(payload && (payload as any).id) {
+        if(payload && (payload as any).id && (payload as any).jti) {
+          // verify jti exists in auth_sessions
+          const jti = (payload as any).jti
+          const uid = (payload as any).id
+          const [found] = await pool.query('SELECT jti FROM auth_sessions WHERE jti = ? AND user_id = ? LIMIT 1', [jti, uid])
+          if(!Array.isArray(found) || (found as any[]).length === 0) return res.status(401).json({ error: 'session not found' })
           // override userId with authenticated id
-          const authed = (payload as any).id
+          const authed = uid
           await pool.query('UPDATE sessions SET current_index = 0, answers = ?, completed_at = NULL, updated_at = ? WHERE user_id = ?', [JSON.stringify([]), new Date(), authed])
           return res.status(200).json({ ok: true })
         }
