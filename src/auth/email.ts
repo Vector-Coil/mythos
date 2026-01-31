@@ -16,7 +16,8 @@ export async function signup(email:string, password:string){
   const r = await apiPost('/api/user', { action: 'register', email, password })
   if(!r.ok) throw new Error(r.body && r.body.error ? r.body.error : `status:${r.status}`)
   const user = r.body.user
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ id: user.id, email: user.email, token: 'local-'+user.id }))
+  const token = r.body.token
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ id: user.id, email: user.email, token }))
   return { id: user.id, email: user.email }
 }
 
@@ -24,7 +25,8 @@ export async function signin(email:string, password:string){
   const r = await apiPost('/api/user', { action: 'login', email, password })
   if(!r.ok) throw new Error(r.body && r.body.error ? r.body.error : `status:${r.status}`)
   const user = r.body.user
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ id: user.id, email: user.email, token: 'local-'+user.id }))
+  const token = r.body.token
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ id: user.id, email: user.email, token }))
   return { id: user.id, email: user.email }
 }
 
@@ -37,6 +39,10 @@ export function currentSession(){
 }
 
 export async function resetProgressByUser(userId:string){
-  const r = await apiPost('/api/session/reset', { userId })
-  return r
+  const sess = currentSession()
+  const headers:any = { 'Content-Type': 'application/json' }
+  if(sess && sess.token) headers['Authorization'] = `Bearer ${sess.token}`
+  const res = await fetch('/api/session/reset', { method: 'POST', headers, body: JSON.stringify({ userId }) })
+  const body = await res.json().catch(()=>null)
+  return { ok: res.ok, status: res.status, body }
 }

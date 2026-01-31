@@ -38,7 +38,13 @@ export default async function handler(req:any, res:any){
     const password = body.password || null
     const name = body.name || null
 
+    const SESSION_SECRET = process.env.SESSION_SECRET
+    if(!SESSION_SECRET) return res.status(500).json({ error: 'SESSION_SECRET not configured' })
+
     if(!email) return res.status(400).json({ error: 'email required' })
+
+    const bcrypt = require('bcryptjs')
+    const jwt = require('jsonwebtoken')
 
     if(action === 'register'){
       const [rows] = await pool.query('SELECT id FROM users WHERE email = ? LIMIT 1', [email])
@@ -47,15 +53,20 @@ export default async function handler(req:any, res:any){
       }
       const id = `user_${Date.now()}`
       const now = new Date()
-      await pool.query('INSERT INTO users (id, email, password, name, created_at) VALUES (?, ?, ?, ?, ?)', [id, email, password, name, now])
-      return res.status(200).json({ ok: true, user: { id, email, name } })
+      const hashed = password ? await bcrypt.hash(password, 10) : null
+      await pool.query('INSERT INTO users (id, email, password, name, created_at) VALUES (?, ?, ?, ?, ?)', [id, email, hashed, name, now])
+      const token = jwt.sign({ id, email }, SESSION_SECRET, { expiresIn: '7d' })
+      return res.status(200).json({ ok: true, user: { id, email, name }, token })
     }
 
     if(action === 'login'){
-      const [rows] = await pool.query('SELECT id, email, name FROM users WHERE email = ? AND password = ? LIMIT 1', [email, password])
+      const [rows] = await pool.query('SELECT id, email, name, password FROM users WHERE email = ? LIMIT 1', [email])
       if(!Array.isArray(rows) || (rows as any[]).length === 0) return res.status(401).json({ error: 'Invalid credentials' })
       const u = (rows as any[])[0]
-      return res.status(200).json({ ok: true, user: { id: u.id, email: u.email, name: u.name } })
+      const match = u.password ? await bcrypt.compare(password || '', u.password) : false
+      if(!match) return res.status(401).json({ error: 'Invalid credentials' })
+      const token = jwt.sign({ id: u.id, email: u.email }, SESSION_SECRET, { expiresIn: '7d' })
+      return res.status(200).json({ ok: true, user: { id: u.id, email: u.email, name: u.name }, token })
     }
 
     return res.status(400).json({ error: 'unknown action' })

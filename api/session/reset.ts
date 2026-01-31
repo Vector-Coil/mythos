@@ -38,6 +38,26 @@ export default async function handler(req:any, res:any){
     const sessionId = body.sessionId
     const userId = body.userId
 
+    // If Authorization header present, verify JWT and use that user id instead
+    const auth = req.headers?.authorization || req.headers?.Authorization
+    if(auth && typeof auth === 'string' && auth.startsWith('Bearer ')){
+      const token = auth.slice(7)
+      const jwt = require('jsonwebtoken')
+      const SESSION_SECRET = process.env.SESSION_SECRET
+      if(!SESSION_SECRET) return res.status(500).json({ error: 'SESSION_SECRET not configured' })
+      try{
+        const payload = jwt.verify(token, SESSION_SECRET)
+        if(payload && (payload as any).id) {
+          // override userId with authenticated id
+          const authed = (payload as any).id
+          await pool.query('UPDATE sessions SET current_index = 0, answers = ?, completed_at = NULL, updated_at = ? WHERE user_id = ?', [JSON.stringify([]), new Date(), authed])
+          return res.status(200).json({ ok: true })
+        }
+      }catch(e:any){
+        return res.status(401).json({ error: 'Invalid token' })
+      }
+    }
+
     if(!sessionId && !userId) return res.status(400).json({ error: 'sessionId or userId required' })
 
     if(sessionId){

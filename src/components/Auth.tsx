@@ -7,11 +7,11 @@ export default function Auth({onAuth}:{onAuth:(user:any)=>void}){
   const [pass, setPass] = useState('')
   const [error, setError] = useState<string|null>(null)
 
-  function handleSignup(){
-    try{ const user = signup(email, pass); onAuth(user) }catch(e:any){ setError(e.message) }
+  async function handleSignup(){
+    try{ const user = await signup(email, pass); onAuth(user) }catch(e:any){ setError(e.message || String(e)) }
   }
-  function handleSignin(){
-    try{ const user = signin(email, pass); onAuth(user) }catch(e:any){ setError(e.message) }
+  async function handleSignin(){
+    try{ const user = await signin(email, pass); onAuth(user) }catch(e:any){ setError(e.message || String(e)) }
   }
   async function handleFarcaster(){
     const u = await authenticateWithFarcaster()
