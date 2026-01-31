@@ -39,7 +39,7 @@ async function ensureTable(){
   `)
 }
 
-export default async function handler(req:any, res:any){
+async function handler(req:any, res:any){
   if(req.method !== 'POST'){
     res.setHeader('Allow','POST')
     return res.status(405).json({ error: 'Method Not Allowed' })
@@ -63,3 +63,5 @@ export default async function handler(req:any, res:any){
     return res.status(500).json({ error: String(err), stack: err && err.stack ? err.stack : undefined })
   }
 }
+
+module.exports = handler

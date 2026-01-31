@@ -1,6 +1,6 @@
 const DATABASE_URL = process.env.DATABASE_URL
 
-export default async function handler(req:any, res:any){
+async function handler(req:any, res:any){
   try{
     if(!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' })
 
@@ -62,3 +62,6 @@ export default async function handler(req:any, res:any){
     return res.status(500).json({ error: String(err) })
   }
 }
+
+// CommonJS export for Vercel runtime
+module.exports = handler

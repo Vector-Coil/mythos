@@ -1,4 +1,4 @@
-export default async function handler(req:any, res:any){
+async function handler(req:any, res:any){
   try{
     if(req.method !== 'POST'){
       res.setHeader('Allow','POST')
@@ -37,3 +37,5 @@ export default async function handler(req:any, res:any){
     return res.status(500).json({ error: String(err) })
   }
 }
+
+module.exports = handler

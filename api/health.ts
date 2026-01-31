@@ -1,6 +1,6 @@
 const DATABASE_URL = process.env.DATABASE_URL
 
-export default async function handler(req:any, res:any){
+async function handler(req:any, res:any){
   try{
     if(!DATABASE_URL) return res.status(500).json({ ok: false, reason: 'DATABASE_URL not set' })
 
@@ -32,3 +32,8 @@ export default async function handler(req:any, res:any){
     return res.status(500).json({ ok: false, error: String(err), stack: err && err.stack ? err.stack : undefined })
   }
 }
+
+// CommonJS export for serverless runtime
+// Vercel may run functions as CommonJS; ensure compatibility
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+module.exports = handler
