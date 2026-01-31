@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS mythos (
+  id VARCHAR(64) PRIMARY KEY,
+  user_id VARCHAR(128),
+  created_at DATETIME NOT NULL,
+  seed VARCHAR(255),
+  prim JSON,
+  scores JSON,
+  svg LONGTEXT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

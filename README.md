@@ -22,6 +22,9 @@ npm run dev
 npm run test
 ```
 
+4. Migrate (create MySQL schema): `npm run migrate` (requires `DATABASE_URL` in `.env.local`)
+```
+
 What this scaffold includes
 
 - `src/components/QuestionFlow.tsx` — simple 20-question flow (sample questions included)
@@ -50,4 +53,13 @@ Next steps
 - Add auth hooks (Farcaster + optional email)
 - Add CI (GitHub Actions) for tests and builds
 - Add asset procurement and licensing (fonts, audio)
+
+Serverless API (development placeholders)
+
+Two simple serverless endpoints have been added under the `api/` folder for development and testing:
+
+- `api/save-results.ts` (POST): Accepts `{ mythos: { ... } }` and writes a draft record to `data/saved_mythos.json`. Returns `{ ok: true, id }`.
+- `api/session.ts` (GET, POST): Returns and stores lightweight session objects in `data/sessions.json`. GET returns all sessions (dev only). POST accepts `{ session: {...} }` and returns an id.
+
+These handlers are file-backed placeholders for local/dev use. For production you should replace them with secure persistence (Supabase, Postgres, etc.) and protect endpoints behind authentication.
 
