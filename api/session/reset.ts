@@ -9,7 +9,13 @@ async function handler(req:any, res:any){
 
     if(!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' })
 
-    const mysqlLib = require('mysql2/promise')
+    let mysqlLib
+    try{
+      mysqlLib = require('mysql2/promise')
+    }catch(e:any){
+      const mysqlCjs = require('mysql2')
+      mysqlLib = { createPool: (...args:any[]) => (mysqlCjs.createPool(...args) as any).promise() }
+    }
     const mysql = (mysqlLib && typeof mysqlLib.createPool === 'function') ? mysqlLib : (mysqlLib && mysqlLib.default && typeof mysqlLib.default.createPool === 'function' ? mysqlLib.default : mysqlLib)
     // reuse pool
     // @ts-ignore

@@ -8,8 +8,14 @@ async function handler(req:any, res:any){
     try{
       mysqlLib = require('mysql2/promise')
     }catch(e:any){
-      console.error('mysql2 require failed', e && e.stack ? e.stack : e)
-      return res.status(500).json({ ok: false, error: 'mysql2 module not found', detail: String(e) })
+      // fallback to CJS mysql2 and wrap with .promise()
+      try{
+        const mysqlCjs = require('mysql2')
+        mysqlLib = { createPool: (...args:any[]) => (mysqlCjs.createPool(...args) as any).promise() }
+      }catch(e2:any){
+        console.error('mysql2 require failed', e && e.stack ? e.stack : e, e2 && e2.stack ? e2.stack : e2)
+        return res.status(500).json({ ok: false, error: 'mysql2 module not found', detail: String(e)+' '+String(e2) })
+      }
     }
     const mysql = (mysqlLib && typeof mysqlLib.createPool === 'function') ? mysqlLib : (mysqlLib && mysqlLib.default && typeof mysqlLib.default.createPool === 'function' ? mysqlLib.default : mysqlLib)
 
