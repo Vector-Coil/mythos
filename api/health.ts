@@ -39,9 +39,17 @@ async function handler(req:any, res:any){
     // @ts-ignore
     let pool = (global as any).__mysqlPool
     if(!pool){
-      pool = mysql.createPool(cfg)
-      // @ts-ignore
-      (global as any).__mysqlPool = pool
+      try{
+        pool = mysql.createPool(cfg)
+        // @ts-ignore
+        (global as any).__mysqlPool = pool
+      }catch(e:any){
+        const createPoolType = typeof (mysql && (mysql as any).createPool)
+        const cpStr = mysql && (mysql as any).createPool && (mysql as any).createPool.toString ? (mysql as any).createPool.toString().slice(0,1000) : undefined
+        const keys = Object.keys(mysql || {}).slice(0,50)
+        const defaultKeys = mysql && mysql.default ? Object.keys(mysql.default).slice(0,50) : undefined
+        return res.status(500).json({ ok:false, error: 'createPool threw', message: String(e), stack: e && e.stack ? e.stack : undefined, createPoolType, createPoolSource: cpStr, keys, defaultKeys })
+      }
     }
 
     const [rows] = await pool.query('SELECT 1 as ok')
