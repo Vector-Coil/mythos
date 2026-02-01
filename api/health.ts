@@ -18,10 +18,10 @@ async function handler(req:any, res:any){
 
     // inspect runtime shape before creating pool (diagnostic)
     try{
-      const createPoolType = typeof (mysql && (mysql as any).createPool)
+      const createPoolType = typeof (mysql2 && (mysql2 as any).createPool)
       if(createPoolType !== 'function'){
-        const keys = Object.keys(mysql || {}).slice(0,20)
-        const defaultKeys = mysql && mysql.default ? Object.keys(mysql.default).slice(0,20) : undefined
+        const keys = Object.keys(mysql2 || {}).slice(0,20)
+        const defaultKeys = mysql2 && (mysql2 as any).default ? Object.keys((mysql2 as any).default).slice(0,20) : undefined
         return res.status(500).json({ ok: false, error: 'mysql.createPool not a function', createPoolType, keys, defaultKeys })
       }
     }catch(e:any){
@@ -33,7 +33,21 @@ async function handler(req:any, res:any){
     let pool = (global as any).__mysqlPool
     if(!pool){
       try{
-        pool = mysql2.createPool(cfg).promise()
+        let corePool: any
+        try{
+          corePool = mysql2.createPool(cfg)
+          if(corePool && typeof corePool.promise === 'function'){
+            pool = corePool.promise()
+          }else if(corePool && typeof corePool.query === 'function'){
+            pool = corePool
+          }else{
+            const mysqlP = require('mysql2/promise')
+            pool = mysqlP.createPool(cfg)
+          }
+        }catch(e:any){
+          const mysqlP = require('mysql2/promise')
+          pool = mysqlP.createPool(cfg)
+        }
         // @ts-ignore
         (global as any).__mysqlPool = pool
       }catch(e:any){

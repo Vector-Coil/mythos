@@ -18,7 +18,25 @@ async function handler(req:any, res:any){
       }else{
         cfg = DATABASE_URL
       }
-      pool = mysql2.createPool(cfg).promise()
+      let corePool: any
+      try{
+        corePool = mysql2.createPool(cfg)
+        if(corePool && typeof corePool.promise === 'function'){
+          pool = corePool.promise()
+        }else if(corePool && typeof corePool.query === 'function'){
+          pool = corePool
+        }else{
+          const mysqlP = require('mysql2/promise')
+          pool = mysqlP.createPool(cfg)
+        }
+      }catch(e:any){
+        try{
+          const mysqlP = require('mysql2/promise')
+          pool = mysqlP.createPool(cfg)
+        }catch(e2:any){
+          throw new Error('unable to create mysql pool: '+String(e2))
+        }
+      }
       // @ts-ignore
       (global as any).__mysqlPool = pool
     }
