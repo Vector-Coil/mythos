@@ -9,22 +9,20 @@ async function handler(req:any, res:any){
 
     if(!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' })
 
-    let mysqlLib
-    try{
-      mysqlLib = require('mysql2/promise')
-    }catch(e:any){
-      const mysqlCjs = require('mysql2')
-      mysqlLib = { createPool: (...args:any[]) => (mysqlCjs.createPool(...args) as any).promise() }
-    }
-    const mysql = (mysqlLib && typeof mysqlLib.createPool === 'function') ? mysqlLib : (mysqlLib && mysqlLib.default && typeof mysqlLib.default.createPool === 'function' ? mysqlLib.default : mysqlLib)
+    const mysql2 = require('mysql2')
     // reuse pool
     // @ts-ignore
     let pool = (global as any).__mysqlPool
     if(!pool){
       const useSsl = /[?&]ssl=(true|1)/i.test(DATABASE_URL)
-      const cfg: any = { uri: DATABASE_URL, waitForConnections: true, connectionLimit: 5 }
-      if(useSsl) cfg.ssl = { rejectUnauthorized: false }
-      pool = mysql.createPool(cfg)
+      let cfg: any
+      if(useSsl){
+        const u = new URL(DATABASE_URL)
+        cfg = { host: u.hostname, port: u.port ? Number(u.port) : undefined, user: decodeURIComponent(u.username), password: decodeURIComponent(u.password), database: u.pathname ? u.pathname.replace(/^\//,'') : undefined, waitForConnections: true, connectionLimit: 5, ssl: { rejectUnauthorized: false } }
+      }else{
+        cfg = DATABASE_URL
+      }
+      pool = mysql2.createPool(cfg).promise()
       // @ts-ignore
       (global as any).__mysqlPool = pool
     }

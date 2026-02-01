@@ -4,24 +4,17 @@ async function handler(req:any, res:any){
   try{
     if(!DATABASE_URL) return res.status(500).json({ ok: false, reason: 'DATABASE_URL not set' })
 
-    let mysqlLib
-    try{
-      mysqlLib = require('mysql2/promise')
-    }catch(e:any){
-      // fallback to CJS mysql2 and wrap with .promise()
-      try{
-        const mysqlCjs = require('mysql2')
-        mysqlLib = { createPool: (...args:any[]) => (mysqlCjs.createPool(...args) as any).promise() }
-      }catch(e2:any){
-        console.error('mysql2 require failed', e && e.stack ? e.stack : e, e2 && e2.stack ? e2.stack : e2)
-        return res.status(500).json({ ok: false, error: 'mysql2 module not found', detail: String(e)+' '+String(e2) })
-      }
-    }
-    const mysql = (mysqlLib && typeof mysqlLib.createPool === 'function') ? mysqlLib : (mysqlLib && mysqlLib.default && typeof mysqlLib.default.createPool === 'function' ? mysqlLib.default : mysqlLib)
+    // prefer the CJS mysql2 module and use the promise wrapper to avoid ESM/CJS import issues
+    const mysql2 = require('mysql2')
 
     const useSsl = /[?&]ssl=(true|1)/i.test(DATABASE_URL)
-    const cfg: any = { uri: DATABASE_URL, waitForConnections: true, connectionLimit: 2 }
-    if(useSsl) cfg.ssl = { rejectUnauthorized: false }
+    let cfg: any
+    if(useSsl){
+      const u = new URL(DATABASE_URL)
+      cfg = { host: u.hostname, port: u.port ? Number(u.port) : undefined, user: decodeURIComponent(u.username), password: decodeURIComponent(u.password), database: u.pathname ? u.pathname.replace(/^\//,'') : undefined, waitForConnections: true, connectionLimit: 2, ssl: { rejectUnauthorized: false } }
+    }else{
+      cfg = DATABASE_URL
+    }
 
     // inspect runtime shape before creating pool (diagnostic)
     try{
@@ -40,15 +33,11 @@ async function handler(req:any, res:any){
     let pool = (global as any).__mysqlPool
     if(!pool){
       try{
-        pool = mysql.createPool(cfg)
+        pool = mysql2.createPool(cfg).promise()
         // @ts-ignore
         (global as any).__mysqlPool = pool
       }catch(e:any){
-        const createPoolType = typeof (mysql && (mysql as any).createPool)
-        const cpStr = mysql && (mysql as any).createPool && (mysql as any).createPool.toString ? (mysql as any).createPool.toString().slice(0,1000) : undefined
-        const keys = Object.keys(mysql || {}).slice(0,50)
-        const defaultKeys = mysql && mysql.default ? Object.keys(mysql.default).slice(0,50) : undefined
-        return res.status(500).json({ ok:false, error: 'createPool threw', message: String(e), stack: e && e.stack ? e.stack : undefined, createPoolType, createPoolSource: cpStr, keys, defaultKeys })
+        return res.status(500).json({ ok:false, error: 'createPool threw', message: String(e), stack: e && e.stack ? e.stack : undefined })
       }
     }
 
