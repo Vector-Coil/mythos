@@ -21,13 +21,20 @@ async function handler(req:any, res:any){
     let pool = (global as any).__mysqlPool
     if(!pool){
       const useSsl = /[?&]ssl=(true|1)/i.test(DATABASE_URL)
-      let cfg: any
-      if(useSsl){
-        const u = new URL(DATABASE_URL)
-        cfg = { host: u.hostname, port: u.port ? Number(u.port) : undefined, user: decodeURIComponent(u.username), password: decodeURIComponent(u.password), database: u.pathname ? u.pathname.replace(/^\//,'') : undefined, waitForConnections: true, connectionLimit: 2, ssl: { rejectUnauthorized: false } }
-      }else{
-        cfg = DATABASE_URL
+      const u = new URL(DATABASE_URL)
+      const poolLimit = Number(process.env.DB_POOL_LIMIT || process.env.DB_CONN_LIMIT || 2)
+      const cfg: any = {
+        host: u.hostname,
+        port: u.port ? Number(u.port) : undefined,
+        user: decodeURIComponent(u.username),
+        password: decodeURIComponent(u.password),
+        database: u.pathname ? u.pathname.replace(/^\//,'') : undefined,
+        waitForConnections: true,
+        connectionLimit: poolLimit,
+        queueLimit: 0,
+        connectTimeout: 10000
       }
+      if(useSsl) cfg.ssl = { rejectUnauthorized: false }
       let corePool: any
       try{
         corePool = mysql2.createPool(cfg)

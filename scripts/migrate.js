@@ -17,9 +17,19 @@ async function main(){
 
   console.log('Connecting to database...')
   // mysql2 expects `ssl` to be an object, not a boolean query param.
-  // If the DATABASE_URL contains `ssl=true`, pass an ssl object to the pool.
+  // Parse DATABASE_URL and pass explicit connection options.
   const useSsl = /[?&]ssl=(true|1)/i.test(databaseUrl)
-  const poolConfig = { uri: databaseUrl, waitForConnections: true, connectionLimit: 4 }
+  const u = new URL(databaseUrl)
+  const poolLimit = Number(process.env.DB_POOL_LIMIT || process.env.DB_CONN_LIMIT || 4)
+  const poolConfig = {
+    host: u.hostname,
+    port: u.port ? Number(u.port) : undefined,
+    user: decodeURIComponent(u.username),
+    password: decodeURIComponent(u.password),
+    database: u.pathname ? u.pathname.replace(/^\//,'') : undefined,
+    waitForConnections: true,
+    connectionLimit: poolLimit
+  }
   if(useSsl) poolConfig.ssl = { rejectUnauthorized: false }
   const pool = mysql.createPool(poolConfig)
 

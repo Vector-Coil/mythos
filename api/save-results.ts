@@ -10,13 +10,20 @@ function getPool(){
   const mysql2 = require('mysql2')
 
   const useSsl = DATABASE_URL && /[?&]ssl=(true|1)/i.test(DATABASE_URL)
-  let cfg: any
-  if(useSsl){
-    const u = new URL(DATABASE_URL)
-    cfg = { host: u.hostname, port: u.port ? Number(u.port) : undefined, user: decodeURIComponent(u.username), password: decodeURIComponent(u.password), database: u.pathname ? u.pathname.replace(/^\//,'') : undefined, waitForConnections: true, connectionLimit: 10, ssl: { rejectUnauthorized: false } }
-  }else{
-    cfg = DATABASE_URL
+  const u = new URL(DATABASE_URL)
+  const poolLimit = Number(process.env.DB_POOL_LIMIT || process.env.DB_CONN_LIMIT || 10)
+  const cfg: any = {
+    host: u.hostname,
+    port: u.port ? Number(u.port) : undefined,
+    user: decodeURIComponent(u.username),
+    password: decodeURIComponent(u.password),
+    database: u.pathname ? u.pathname.replace(/^\//,'') : undefined,
+    waitForConnections: true,
+    connectionLimit: poolLimit,
+    queueLimit: 0,
+    connectTimeout: 10000
   }
+  if(useSsl) cfg.ssl = { rejectUnauthorized: false }
 
   let corePool: any
   try{
