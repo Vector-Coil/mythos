@@ -1,9 +1,9 @@
-export {}
-var DATABASE_URL = process.env.DATABASE_URL
+function getDatabaseUrl(){ return process.env.DATABASE_URL }
 
 async function handler(req:any, res:any){
-  try{
-    if(!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' })
+    try{
+      const DATABASE_URL = getDatabaseUrl()
+      if(!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' })
 
     // lazy-load mysql to avoid import-time failures
     const mysql2 = require('mysql2')
@@ -12,7 +12,8 @@ async function handler(req:any, res:any){
     let pool = (global as any).__mysqlPool
     if(!pool){
       const useSsl = /[?&]ssl=(true|1)/i.test(DATABASE_URL)
-      const u = new URL(DATABASE_URL)
+      let u: URL
+      try{ u = new URL(DATABASE_URL) }catch(e){ return res.status(500).json({ error: 'Invalid DATABASE_URL format', detail: String(e) }) }
       const poolLimit = Number(process.env.DB_POOL_LIMIT || process.env.DB_CONN_LIMIT || 10)
       let cfg: any = {
         host: u.hostname,

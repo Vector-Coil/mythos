@@ -1,6 +1,5 @@
-export {}
-const DATABASE_URL = process.env.DATABASE_URL
-if(!DATABASE_URL) console.warn('No DATABASE_URL configured — save-results API will fail without a database')
+function getDatabaseUrl(){ return process.env.DATABASE_URL }
+
 
 let pool: any
 function getPool(){
@@ -8,10 +7,13 @@ function getPool(){
   // @ts-ignore
   if((global as any).__mysqlPool) { pool = (global as any).__mysqlPool; return pool }
 
+  const DATABASE_URL = getDatabaseUrl()
+  if(!DATABASE_URL) throw new Error('DATABASE_URL not configured')
   const mysql2 = require('mysql2')
 
   const useSsl = DATABASE_URL && /[?&]ssl=(true|1)/i.test(DATABASE_URL)
-  const u = new URL(DATABASE_URL)
+  let u: URL
+  try{ u = new URL(DATABASE_URL) }catch(e){ throw new Error('Invalid DATABASE_URL: '+String(e)) }
   const poolLimit = Number(process.env.DB_POOL_LIMIT || process.env.DB_CONN_LIMIT || 10)
   const cfg: any = {
     host: u.hostname,
