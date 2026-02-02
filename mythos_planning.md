@@ -903,7 +903,7 @@ The app opens to a pitch-black screen. No logo. Only a faint, pulsing hum (low-f
 
     Text appears slowly: "You have spent your life looking outward. For the next moment, look only at the glass."
 
-    The Interaction: The user must touch and hold the center of the screen. As they do, a digital "frost" melts away, revealing the front-facing camera—low-lit and filtered to look like a silvered mirror.
+    The Interaction: The user must touch and hold the center of the screen. As they do, a digital "frost" melts away, revealing the front-facing camera—low-lit and filtered to look like a silvered mirror. Note: the pulsing hum and haptic heartbeat are optional sensory features controlled by `SensoryContext` and only start after an explicit opt-in; settings persist to localStorage keys like `mythos_sensory` and `mythos_ambient_on`.
 
 Minute 2: Atmospheric Calibration
 

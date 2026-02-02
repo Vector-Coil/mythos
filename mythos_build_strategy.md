@@ -67,34 +67,34 @@ Integration Rituals (Daily work & Shadow dialogue)
 The Living Tapestry (Ongoing evolution)
 ```
 
-### The First 5 Minutes
+### The First 5 Minutes (MVP alignment)
 
-**Minute 1: The Dark Entry**
-- App opens to pitch-black screen
-- Low-frequency binaural beat hum
-- Text appears: *"You have spent your life looking outward. For the next moment, look only at the glass."*
-- User holds center of screen to "melt frost" revealing front-camera mirror
+We split the Initialization experience into an achievable MVP (visual + copy) and optional sensory/permissioned features (opt-in). This keeps a strong first-impression while deferring higher-effort device features.
 
-**Minute 2: Atmospheric Calibration**
-Three rapid sensory questions set UI theme:
-1. "Which sound completes the room?" (Fire/Water/Silence/Echoes)
-2. "Choose a texture:" (Marble/Bark/Silk/Iron)
-3. Based on responses, UI locks in color palette, typography, and ambient sound
+MVP (high priority)
+- Dark Entry: show a full-screen dark intro that transitions into the app using atmospheric copy and a simple fade. No camera access required.
+- Atmospheric Calibration: three rapid choice questions that set a theme object (palette + class) stored in the current session; used to style subsequent screens.
+- Threshold UI: first inquiry appears with the proper title text and a subtle fade/scale reveal animation.
 
-**Minute 3: The First Inquiry**
-- First question appears titled "The Threshold" (not "Question 1/20")
-- Text fades in like being breathed onto screen
-- Haptic heartbeat accompanies answer selection
+Medium (UX polish)
+- Add a brief "glitch" or inversion animation after the first answers to create psychological tension.
+- Record response timestamps on the client and send latency values with the session save payload for later scoring.
 
-**Minute 4: The Shadow Glimpse**
-- Intentional screen "glitch" - inverts briefly
-- Text: *"Your ego answered that. Now, let the one beneath speak."*
-- Establishes psychological stakes
+Later / Opt-in (sensory + device)
+- Ambient audio (binaural) and haptic patterns (mobile), gated behind an opt-in permission prompt.
+ - Sensory features (ambient binaural audio + haptic patterns on mobile) are gated behind an opt-in permission and centralized in the `SensoryContext` (`useSensory()` hook). Settings persist to localStorage using keys: `mythos_sensory`, `mythos_ambient_on`, `mythos_ambient_level`, `mythos_ambient_beat`, and `mythos_ambient_base`.
+- Camera mirror "melt frost" effect requiring explicit user permission and graceful fallback to the Dark Entry when denied.
 
-**Minute 5: Progression**
-- User continues through inquiry arcs
-- App tracks response latency (hesitation = internal conflict)
-- Visual tapestry begins forming in background
+Acceptance criteria (MVP)
+- Dark Entry: user sees a full-screen black intro and a copy fade that transitions into Question 1 within 2s.
+- Calibration: three choices presented sequentially; selections persist to session storage and influence page CSS class or theme variable.
+- Threshold UI: first question renders with the title "The Threshold" and a visible reveal animation; answering navigates to the next question and saves the response to the `sessions` backend.
+
+Telemetry & data
+- Capture `response_started_at` and `response_submitted_at` timestamps for each question and include `latency_ms` in the session `answers` blob. This enables hesitation-aware scoring without shipping live audio/camera features.
+
+Implementation note
+- Implement MVP purely in the frontend and reuse existing session APIs (`/api/session`) to persist calibration and the first question's answer. Add feature flags for audio/camera flows so they can be developed separately.
 
 ---
 

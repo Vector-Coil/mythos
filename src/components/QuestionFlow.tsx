@@ -1,24 +1,35 @@
 import React, {useEffect, useState} from 'react'
+import { useSensory } from '../context/SensoryContext'
 import questions from '../data/questions_full.json'
 import Auth from './Auth'
 import { calculateScores, determinePrimaries } from '../lib/scoring'
 import { generateSigilSVG } from '../lib/sigil'
+import DarkEntry from './DarkEntry'
+import Calibration from './Calibration'
 
 type Q = typeof questions[0]
 
 export default function QuestionFlow(){
+  const amb = useSensory()
   const [user, setUser] = React.useState<any>(null)
   const [index, setIndex] = useState(0)
-  const [answers, setAnswers] = useState<Array<{questionId:string; selectedId:string; weights:any}>>([])
+  const [answers, setAnswers] = useState<Array<any>>([])
   const [sessionId, setSessionId] = useState<string|null>(null)
   const [result, setResult] = useState<any|null>(null)
+  const [phase, setPhase] = useState<'entry'|'calibration'|'questions'>('entry')
+  const [theme, setTheme] = useState<any>(null)
+  const [startTimes, setStartTimes] = useState<Record<string,string>>({})
 
   const current: Q = questions[index]
 
   function select(choiceId: string){
     const choice = current.responses.find((r:any)=>r.id===choiceId)
     if(!choice) return
-    const nextAnswers = [...answers,{questionId: current.question_id, selectedId: choiceId, weights: choice.weights}]
+    const started = startTimes[current.question_id]
+    const submitted = new Date().toISOString()
+    const latency = started ? (new Date(submitted).getTime() - new Date(started).getTime()) : undefined
+    const answerObj:any = { questionId: current.question_id, selectedId: choiceId, weights: choice.weights, response_started_at: started || null, response_submitted_at: submitted, latency_ms: latency }
+    const nextAnswers = [...answers, answerObj]
     setAnswers(nextAnswers)
     // persist session snapshot
     (async ()=>{
@@ -26,7 +37,7 @@ export default function QuestionFlow(){
         await fetch('/api/session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ session: { id: sessionId, userId: user?.id ?? null, current_index: index, answers: nextAnswers, updated_at: new Date().toISOString() } })
+          body: JSON.stringify({ session: { id: sessionId, userId: user?.id ?? null, current_index: index, answers: nextAnswers, updated_at: new Date().toISOString(), theme } })
         })
           .then(r=>r.json())
           .then(b=>{ if(b && b.id && !sessionId) setSessionId(b.id) })
@@ -35,7 +46,7 @@ export default function QuestionFlow(){
     const next = index+1
     if(next >= questions.length){
       // compute result
-      const scores = calculateScores([...answers,{questionId: current.question_id, selectedId: choiceId, weights: choice.weights}])
+      const scores = calculateScores([...answers, answerObj])
       const prim = determinePrimaries(scores)
       // build a simple seed from primary ids
       const seed = [ (prim.primary_origin||'origin_unknown').replace('origin_',''), (prim.primary_archetype||'archetype_unknown').replace('archetype_',''), (prim.primary_affinity||'affinity_unknown').replace('affinity_',''), ( (prim.primary_teleos||'teleos_unknown').replace('teleos_','')) ].join('-')
@@ -49,7 +60,7 @@ export default function QuestionFlow(){
           await fetch('/api/session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ session: { id: sessionId, userId: user?.id ?? null, current_index: next, answers: [...answers,{questionId: current.question_id, selectedId: choiceId, weights: choice.weights}], completed_at: new Date().toISOString() } })
+            body: JSON.stringify({ session: { id: sessionId, userId: user?.id ?? null, current_index: next, answers: [...answers, answerObj], completed_at: new Date().toISOString(), theme } })
           })
         }catch(e){ /* ignore */ }
 
@@ -70,6 +81,12 @@ export default function QuestionFlow(){
         }
       })()
     } else {
+      // trigger a brief glitch animation after first answer
+      if(index === 0){
+        const el = document.querySelector('.card')
+        if(el){ el.classList.add('glitch'); setTimeout(()=>el.classList.remove('glitch'),360) }
+      }
+      try{ if(amb.sensory) navigator.vibrate && navigator.vibrate(20) }catch(e){}
       setIndex(next)
     }
   }
@@ -99,6 +116,8 @@ export default function QuestionFlow(){
               setAnswers(s.answers)
               const idx = typeof s.current_index === 'number' ? s.current_index : s.answers.length
               setIndex(idx)
+              if(s.theme) setTheme(s.theme)
+              setPhase('questions')
               return
             }
           }
@@ -117,6 +136,28 @@ export default function QuestionFlow(){
   // run once on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
+
+  // set question start timestamp when index changes
+  useEffect(()=>{
+    if(phase !== 'questions') return
+    const q = questions[index]
+    if(!q) return
+    setStartTimes(prev=>({ ...prev, [q.question_id]: new Date().toISOString() }))
+  },[index, phase])
+
+  if(phase === 'entry') return <DarkEntry onBegin={()=>setPhase('calibration')} />
+
+  if(phase === 'calibration') return (
+    <div>
+      <Auth onAuth={(u)=>setUser(u)} />
+      <Calibration onDone={async (t)=>{
+        setTheme(t)
+        // persist theme to session
+        try{ await fetch('/api/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session: { id: sessionId, userId: user?.id ?? null, theme: t, updated_at: new Date().toISOString() } }) }) }catch(e){}
+        setPhase('questions')
+      }} />
+    </div>
+  )
 
   if(result) return (
     <div className="card result">
