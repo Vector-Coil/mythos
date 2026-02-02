@@ -30,7 +30,7 @@ export default function QuestionFlow(){
     const latency = started ? (new Date(submitted).getTime() - new Date(started).getTime()) : undefined
     const answerObj:any = { questionId: current.question_id, selectedId: choiceId, weights: choice.weights, response_started_at: started || null, response_submitted_at: submitted, latency_ms: latency }
     const nextAnswers = [...answers, answerObj]
-    setAnswers(nextAnswers)
+    setAnswers(nextAnswers);
     // persist session snapshot
     (async ()=>{
       try{

@@ -1,4 +1,5 @@
-const DATABASE_URL = process.env.DATABASE_URL
+export {}
+var DATABASE_URL = process.env.DATABASE_URL
 
 async function handler(req:any, res:any){
   try{

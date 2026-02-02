@@ -1,3 +1,4 @@
+export {}
 const DATABASE_URL = process.env.DATABASE_URL
 if(!DATABASE_URL) console.warn('No DATABASE_URL configured — save-results API will fail without a database')
 
