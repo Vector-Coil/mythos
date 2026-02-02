@@ -22,7 +22,7 @@ export default function QuestionFlow(){
 
   const current: Q = questions[index]
 
-  function select(choiceId: string){
+  const handleSelect = (choiceId: string) => {
     const choice = current.responses.find((r:any)=>r.id===choiceId)
     if(!choice) return
     const started = startTimes[current.question_id]
@@ -90,6 +90,7 @@ export default function QuestionFlow(){
       setIndex(next)
     }
   }
+  
 
   // resume previous session on load or create a new one
   useEffect(()=>{
@@ -180,7 +181,7 @@ export default function QuestionFlow(){
         <h3>{current.text}</h3>
         <div className="answers">
           {current.responses.map((r:any)=> (
-            <button key={r.id} className="btn" onClick={()=>select(r.id)}>{r.text}</button>
+            <button key={r.id} className="btn" onClick={()=>handleSelect(r.id)}>{r.text}</button>
           ))}
         </div>
       </div>
