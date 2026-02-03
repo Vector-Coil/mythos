@@ -107,6 +107,9 @@ export default function QuestionFlow(){
       const svg = generateSigilSVG(seed)
       const mythos = { prim, seed, scores, svg }
 
+      // persist completed result locally so a page refresh will still show it
+      try{ localStorage.setItem('mythos_result', JSON.stringify(mythos)) }catch(e){}
+
       // persist result to serverless API (development placeholder)
       ;(async ()=>{
         try{
@@ -126,12 +129,18 @@ export default function QuestionFlow(){
           })
           const body = await resp.json()
           if(resp.ok && body.id){
-            setResult({ prim, seed, svg, savedId: body.id })
+            const r = { prim, seed, svg, savedId: body.id }
+            try{ localStorage.setItem('mythos_result', JSON.stringify(r)) }catch(e){}
+            setResult(r)
           }else{
-            setResult({ prim, seed, svg, saveError: body.error || 'save_failed' })
+            const r = { prim, seed, svg, saveError: body.error || 'save_failed' }
+            try{ localStorage.setItem('mythos_result', JSON.stringify(r)) }catch(e){}
+            setResult(r)
           }
         }catch(err:any){
-          setResult({ prim, seed, svg, saveError: String(err) })
+          const r = { prim, seed, svg, saveError: String(err) }
+          try{ localStorage.setItem('mythos_result', JSON.stringify(r)) }catch(e){}
+          setResult(r)
         }
       })()
     } else {
@@ -148,6 +157,18 @@ export default function QuestionFlow(){
 
   // resume previous session on load or create a new one
   useEffect(()=>{
+    // if a completed result exists locally, load it so refresh shows the results view
+    try{
+      const stored = localStorage.getItem('mythos_result')
+      if(stored){
+        const parsed = JSON.parse(stored)
+        if(parsed && parsed.prim){
+          setResult(parsed)
+          return
+        }
+      }
+    }catch(e){}
+
     (async ()=>{
       try{
         // try to fetch existing sessions (dev endpoint returns all sessions)
@@ -231,7 +252,7 @@ export default function QuestionFlow(){
 
       {result.savedId && <div style={{marginTop:8,color:'#9ae6b4'}}>Saved: {result.savedId}</div>}
       {result.saveError && <div style={{marginTop:8,color:'#fca5a5'}}>Save error: {result.saveError}</div>}
-      <button className="btn" onClick={()=>{setIndex(0); setAnswers([]); setResult(null)}}>Retake</button>
+      <button className="btn" onClick={()=>{setIndex(0); setAnswers([]); setResult(null); try{ localStorage.removeItem('mythos_result') }catch(e){} }}>Retake</button>
     </div>
   )
 
