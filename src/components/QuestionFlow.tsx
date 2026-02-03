@@ -73,6 +73,9 @@ export default function QuestionFlow(){
   const [phase, setPhase] = useState<'entry'|'calibration'|'questions'>('entry')
   const [theme, setTheme] = useState<any>(null)
   const [startTimes, setStartTimes] = useState<Record<string,string>>({})
+  const [savedIdInput, setSavedIdInput] = useState<string>('')
+  const [recentResults, setRecentResults] = useState<any[]|null>(null)
+  const [loadingRecent, setLoadingRecent] = useState(false)
 
   const current: Q = questions[index]
 
@@ -259,6 +262,48 @@ export default function QuestionFlow(){
   return (
     <div>
       <Auth onAuth={(u)=>setUser(u)} />
+      <div style={{margin:'10px 0'}}>
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          <input placeholder="Enter result id to load" value={savedIdInput} onChange={(e)=>setSavedIdInput(e.target.value)} style={{flex:1}} />
+          <button className="btn" onClick={async ()=>{
+            if(!savedIdInput) return
+            try{
+              const resp = await fetch('/api/save-results?id='+encodeURIComponent(savedIdInput))
+              if(!resp.ok) return
+              const body = await resp.json()
+              if(body && body.mythos){
+                try{ localStorage.setItem('mythos_result', JSON.stringify(body.mythos)) }catch(e){}
+                setResult(body.mythos)
+              }
+            }catch(e){ }
+          }}>Load</button>
+          <button className="btn" onClick={async ()=>{
+            setLoadingRecent(true); setRecentResults(null)
+            try{
+              const resp = await fetch('/api/save-results')
+              const body = await resp.json()
+              if(resp.ok && Array.isArray(body.results)) setRecentResults(body.results)
+            }catch(e){}
+            setLoadingRecent(false)
+          }}>{loadingRecent ? 'Loading...' : 'Recent'}</button>
+        </div>
+        {recentResults && (
+          <div style={{marginTop:8,maxHeight:160,overflow:'auto',border:'1px solid rgba(255,255,255,0.04)',borderRadius:6,padding:8}}>
+            {recentResults.map(r=> (
+              <div key={r.id} style={{display:'flex',justifyContent:'space-between',padding:'6px 4px'}}>
+                <div style={{flex:1}}>{r.seed || r.id}</div>
+                <div style={{marginLeft:8}}><button className="btn" onClick={async ()=>{
+                  try{
+                    const resp = await fetch('/api/save-results?id='+encodeURIComponent(r.id))
+                    const body = await resp.json()
+                    if(resp.ok && body.mythos){ try{ localStorage.setItem('mythos_result', JSON.stringify(body.mythos)) }catch(e){}; setResult(body.mythos) }
+                  }catch(e){}
+                }}>View</button></div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       <div className="card">
       <div className="question">
         <h3>{current.text}</h3>

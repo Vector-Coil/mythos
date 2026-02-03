@@ -70,8 +70,34 @@ async function ensureTable(){
 async function handler(req:any, res:any){
   const DATABASE_URL = getDatabaseUrl()
   if(!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' })
+
+  // Allow GET to fetch saved results (by id or recent list) and POST to save a result
+  if(req.method === 'GET'){
+    try{
+      const p = getPool()
+      await ensureTable()
+      const id = req.query && (req.query.id || req.query.ID)
+      if(id){
+        const [rows] = await p.query('SELECT id, user_id, created_at, seed, prim, scores, svg FROM mythos WHERE id = ? LIMIT 1', [id])
+        const row = Array.isArray(rows) && (rows as any[])[0]
+        if(!row) return res.status(404).json({ error: 'Not found' })
+        // parse JSON fields
+        try{ row.prim = row.prim ? JSON.parse(row.prim) : null }catch(e){}
+        try{ row.scores = row.scores ? JSON.parse(row.scores) : null }catch(e){}
+        return res.status(200).json({ mythos: row })
+      }
+
+      // list recent
+      const [rows] = await p.query('SELECT id, user_id, created_at, seed FROM mythos ORDER BY created_at DESC LIMIT 100')
+      return res.status(200).json({ results: rows })
+    }catch(err:any){
+      console.error('save-results GET error', err && err.stack ? err.stack : err)
+      return res.status(500).json({ error: String(err) })
+    }
+  }
+
   if(req.method !== 'POST'){
-    res.setHeader('Allow','POST')
+    res.setHeader('Allow','GET, POST')
     return res.status(405).json({ error: 'Method Not Allowed' })
   }
 
