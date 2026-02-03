@@ -3,7 +3,48 @@ function getDatabaseUrl(){ return process.env.DATABASE_URL }
 async function handler(req:any, res:any){
     try{
       const DATABASE_URL = getDatabaseUrl()
-      if(!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' })
+
+      // If no DATABASE_URL is configured, fall back to an in-memory mock store for local development
+      if(!DATABASE_URL){
+        // @ts-ignore
+        const mockStore = (global as any).__mockSessions = (global as any).__mockSessions || []
+
+        if(req.method === 'GET'){
+          // return recent sessions in same shape as the DB query
+          const rows = mockStore.slice(-200).reverse().map((s:any)=>({
+            id: s.id,
+            user_id: s.userId || null,
+            created_at: s.created_at,
+            updated_at: s.updated_at,
+            current_index: s.current_index || 0,
+            answers: s.answers || null,
+            completed_at: s.completed_at || null,
+            session: s
+          }))
+          return res.status(200).json({ sessions: rows })
+        }
+
+        if(req.method === 'POST'){
+          const body = req.body
+          if(!body || !body.session) return res.status(400).json({ error: 'Missing `session` in request body' })
+          const s = body.session
+          const now = new Date().toISOString()
+          if(s.id){
+            const idx = mockStore.findIndex((ms:any)=>ms.id === s.id)
+            if(idx !== -1){
+              mockStore[idx] = { ...mockStore[idx], userId: s.userId || null, updated_at: now, current_index: s.current_index ?? mockStore[idx].current_index, answers: s.answers ?? mockStore[idx].answers, completed_at: s.completed_at ?? mockStore[idx].completed_at }
+              return res.status(200).json({ ok: true, id: s.id })
+            }
+          }
+          const id = s.id || `session_${Date.now()}`
+          const rec = { id, userId: s.userId || null, created_at: now, updated_at: now, current_index: s.current_index || 0, answers: s.answers || [], completed_at: s.completed_at || null }
+          mockStore.push(rec)
+          return res.status(200).json({ ok: true, id })
+        }
+
+        res.setHeader('Allow', 'GET, POST')
+        return res.status(405).json({ error: 'Method Not Allowed' })
+      }
 
     // lazy-load mysql to avoid import-time failures
     const mysql2 = require('mysql2')

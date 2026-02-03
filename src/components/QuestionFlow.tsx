@@ -79,6 +79,16 @@ export default function QuestionFlow(){
 
   const current: Q = questions[index]
 
+  // helper to handle auth and attach user to session if one exists
+  const handleAuth = async (u:any)=>{
+    setUser(u)
+    try{
+      if(sessionId){
+        await fetch('/api/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session: { id: sessionId, userId: u?.id ?? null, updated_at: new Date().toISOString() } }) })
+      }
+    }catch(e){}
+  }
+
   const handleSelect = (choiceId: string) => {
     const choice = current.responses.find((r:any)=>r.id===choiceId)
     if(!choice) return
@@ -108,7 +118,7 @@ export default function QuestionFlow(){
       // build a simple seed from primary ids
       const seed = [ (prim.primary_origin||'origin_unknown').replace('origin_',''), (prim.primary_archetype||'archetype_unknown').replace('archetype_',''), (prim.primary_affinity||'affinity_unknown').replace('affinity_',''), ( (prim.primary_teleos||'teleos_unknown').replace('teleos_','')) ].join('-')
       const svg = generateSigilSVG(seed)
-      const mythos = { prim, seed, scores, svg }
+        const mythos = { userId: user?.id ?? null, prim, seed, scores, svg }
 
       // persist completed result locally so a page refresh will still show it
       try{ localStorage.setItem('mythos_result', JSON.stringify(mythos)) }catch(e){}
@@ -228,7 +238,7 @@ export default function QuestionFlow(){
 
   if(phase === 'calibration') return (
     <div>
-      <Auth onAuth={(u)=>setUser(u)} />
+      <Auth onAuth={handleAuth} />
       <Calibration onDone={async (t)=>{
         setTheme(t)
         // persist theme to session
@@ -261,7 +271,7 @@ export default function QuestionFlow(){
 
   return (
     <div>
-      <Auth onAuth={(u)=>setUser(u)} />
+      <Auth onAuth={handleAuth} />
       <div style={{margin:'10px 0'}}>
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
           <input placeholder="Enter result id to load" value={savedIdInput} onChange={(e)=>setSavedIdInput(e.target.value)} style={{flex:1}} />
@@ -280,7 +290,8 @@ export default function QuestionFlow(){
           <button className="btn" onClick={async ()=>{
             setLoadingRecent(true); setRecentResults(null)
             try{
-              const resp = await fetch('/api/save-results')
+              const url = user?.id ? '/api/save-results?userId='+encodeURIComponent(user.id) : '/api/save-results'
+              const resp = await fetch(url)
               const body = await resp.json()
               if(resp.ok && Array.isArray(body.results)) setRecentResults(body.results)
             }catch(e){}
