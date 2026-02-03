@@ -68,6 +68,7 @@ async function ensureTable(){
 }
 
 async function handler(req:any, res:any){
+  const DATABASE_URL = getDatabaseUrl()
   if(!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' })
   if(req.method !== 'POST'){
     res.setHeader('Allow','POST')
