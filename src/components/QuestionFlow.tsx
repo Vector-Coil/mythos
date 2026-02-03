@@ -7,6 +7,60 @@ import { generateSigilSVG } from '../lib/sigil'
 import DarkEntry from './DarkEntry'
 import Calibration from './Calibration'
 
+// Small helpers for rendering human-friendly labels
+function humanLabel(key?: string){
+  if(!key) return 'Unknown'
+  const map: Record<string,string> = {
+    // origins
+    origin_order: 'The Eternal Order',
+    origin_wild: 'The Fecund Wild',
+    origin_spark: 'The Celestial Spark',
+    origin_void: 'The Primordial Void',
+    origin_ancestry: 'The Great Ancestry',
+    // archetypes
+    archetype_sovereign: 'Sovereign',
+    archetype_iconoclast: 'Iconoclast',
+    archetype_alchemist: 'Alchemist',
+    archetype_sentinel: 'Sentinel',
+    archetype_wayfarer: 'Wayfarer',
+    archetype_weaver: 'Weaver',
+    // affinities
+    affinity_solar: 'Solar',
+    affinity_lunar: 'Lunar',
+    affinity_stellar: 'Stellar',
+    affinity_volcanic: 'Volcanic',
+    // teleos
+    teleos_apotheosis: 'Apotheosis',
+    teleos_communion: 'Communion',
+    teleos_legacy: 'Legacy',
+    teleos_equilibrium: 'Equilibrium',
+    teleos_transcendence: 'Transcendence'
+  }
+  return map[key] || key.replace(/^.*?_/, '').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())
+}
+
+function ResultTitle({prim}:{prim:any}){
+  const arche = humanLabel(prim.primary_archetype)
+  const origin = humanLabel(prim.primary_origin)
+  const affinity = humanLabel(prim.primary_affinity)
+  return <p style={{fontSize:16,marginTop:6}}><strong>{affinity} {arche}</strong> · <em>{origin}</em></p>
+}
+
+function ScoreList({scores}:{scores:Record<string,number>}){
+  if(!scores) return null
+  const items = Object.entries(scores).sort((a,b)=>b[1]-a[1])
+  return (
+    <div style={{maxHeight:220,overflow:'auto',background:'rgba(255,255,255,0.02)',padding:8,borderRadius:8}}>
+      {items.map(([k,v])=> (
+        <div key={k} style={{display:'flex',justifyContent:'space-between',padding:'6px 8px',borderBottom:'1px solid rgba(255,255,255,0.02)'}}>
+          <div style={{color:'#e2e8f0'}}>{humanLabel(k)}</div>
+          <div style={{color:'#9ca3af'}}>{Math.round(v)}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 type Q = typeof questions[0]
 
 export default function QuestionFlow(){
@@ -163,10 +217,18 @@ export default function QuestionFlow(){
   if(result) return (
     <div className="card result">
       <h2>Your Mythos</h2>
-      <p><strong>{result.prim.primary_archetype}</strong> · <em>{result.prim.primary_origin}</em> · {result.prim.primary_affinity}</p>
       <div style={{marginBottom:8}}>Signed in as: {user?.email ?? user?.name ?? 'Guest'}</div>
-      <div dangerouslySetInnerHTML={{__html: result.svg}} />
-      <pre style={{whiteSpace:'pre-wrap',color:'#cbd5e1'}}>{JSON.stringify(result.prim.scores,null,2)}</pre>
+
+      {/* Human-friendly title */}
+      <ResultTitle prim={result.prim} />
+
+      <div style={{marginTop:12,marginBottom:12}} dangerouslySetInnerHTML={{__html: result.svg}} />
+
+      <div style={{marginTop:8}}>
+        <h4 style={{margin: '6px 0'}}>Scores</h4>
+        <ScoreList scores={result.prim.scores} />
+      </div>
+
       {result.savedId && <div style={{marginTop:8,color:'#9ae6b4'}}>Saved: {result.savedId}</div>}
       {result.saveError && <div style={{marginTop:8,color:'#fca5a5'}}>Save error: {result.saveError}</div>}
       <button className="btn" onClick={()=>{setIndex(0); setAnswers([]); setResult(null)}}>Retake</button>
